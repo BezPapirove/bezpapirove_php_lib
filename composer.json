@@ -1,0 +1,22 @@
+{
+    "name": "bezpapirove/bezpapirove_php_lib",
+    "type": "library",
+    "require": {
+        "phpunit/phpunit": "11.2.x-dev",
+        "ramsey/uuid": "5.x-dev",
+        "php": ">=8.0"
+    },
+    "license": "MIT License",
+    "autoload": {
+        "psr-4": {
+            "Bezpapirove\\BezpapirovePhpLib\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tomáš Otruba",
+            "email": "tomas@bezpapirove.cz"
+        }
+    ],
+    "minimum-stability": "dev"
+}
