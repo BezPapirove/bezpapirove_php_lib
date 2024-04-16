@@ -6,7 +6,7 @@
         "ramsey/uuid": "5.x-dev",
         "php": ">=8.0"
     },
-    "license": "MIT License",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Bezpapirove\\BezpapirovePhpLib\\": "src/"
