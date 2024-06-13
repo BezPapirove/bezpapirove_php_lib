@@ -40,9 +40,10 @@ class PdfSignCertificateAdder
 	/**
 	 * @throws PdfParserException
 	 */
-	public function addCertificateToSignedPdf(string $signedPdf, string $output): void
+	public function addCertificateToSignedPdf(string $signedPdf): void
 	{
-
+		$output = 'm-' . $signedPdf;
+//		var_dump($output);exit;
 		$this->pdf->setSourceFile($signedPdf);
 
 		// Step 5: Add the signature and the certificate

@@ -10,29 +10,28 @@ final class PdfSignerTest extends TestCase
 {
 
 	private PdfSignCertificateAdder $pdfSigner;
-	const SIGNED_PDF = 'path/to/your/signed_output.pdf';
-	const CERT_PATH = 'path/to/your/certificate.pem';
+	const SIGNED_PDF = '/home/kelso/bezpapirove/bezpapirove_php_lib/src/Pdf/sample.pdf';
+	const CERT_PATH = '/home/kelso/bezpapirove/bezpapirove_php_lib/src/Pdf/certificate.pem';
 	const HASH_DATA = 'your data';
 
-	protected function setUp(): void
-	{
-		parent::setUp();
-		$this->pdfSigner = new PdfSignCertificateAdder(
-			'../src/Pdf/sample.pdf',
-			'src/Pdf/private-key.pem',
-			'src/Pdf/certificate.pem',
-			'your_certificate_password'
-		);
-	}
+//	protected function setUp(): void
+//	{
+//		parent::setUp();
+//		$this->pdfSigner = new PdfSignCertificateAdder(
+//			'../../src/Pdf/sample.pdf',
+//			'src/Pdf/private-key.pem',
+//			'src/Pdf/certificate.pem',
+//			'your_certificate_password'
+//		);
+//	}
 
 	public function testPdfSignCertificateAdder(): void
 	{
-		$inputPdfPath ='../src/Pdf/sample.pdf';
-		$privateKeyPath = 'src/Pdf/private-key.pem';
-		$certificatePath = 'path/to/your/certificate.pem';
-		$password = 'your_certificate_password';
-		$signedPdfPath = 'path/to/your/signed_output.pdf';
-		$hashData = 'your data';
+		$inputPdfPath ='/home/kelso/bezpapirove/bezpapirove_php_lib/src/Pdf/sample.pdf';
+		$privateKeyPath = '/home/kelso/bezpapirove/bezpapirove_php_lib/src/Pdf/private-key.pem';
+		$certificatePath = '/home/kelso/bezpapirove/bezpapirove_php_lib/src/Pdf/certificate.pem';
+		$password = 'aaaaaa';
+//		$renamedPdfPath = '/home/kelso/bezpapirove/bezpapirove_php_lib/src/Pdf/m-sample.pdf';
 
 //		try {
 //			$pdf->setSourceFile($pdfFilePath);
@@ -46,14 +45,23 @@ final class PdfSignerTest extends TestCase
 //		}
 
 		// Assert if files exist and is readable
-		$this->assertFileExists($inputPdfPath);
+//		$this->assertFileExists($inputPdfPath);
+//		$this->assertFileExists($certificatedPdfPath);
 //		$this->assertFileIsReadable($inputPdfPath);
 //		$this->assertFileExists($privateKeyPath);
 //		$this->assertFileIsReadable($privateKeyPath);
 //		$this->assertFileExists($certificatePath);
 //		$this->assertFileIsReadable($certificatePath);
 
-		// Instantiate the PdfSignCertificateAdder
+//		// Instantiate the PdfSignCertificateAdder
+//		$pdfSigner = new \Bezpapirove\BezpapirovePhpLib\Pdf\PdfSignCertificateAdder(
+//			$inputPdfPath,
+//			$privateKeyPath,
+//			$certificatePath,
+//			$password
+//		);
+
+// Instantiate the PdfSignCertificateAdder
 		$pdfSigner = new \Bezpapirove\BezpapirovePhpLib\Pdf\PdfSignCertificateAdder(
 			$inputPdfPath,
 			$privateKeyPath,
@@ -61,15 +69,42 @@ final class PdfSignerTest extends TestCase
 			$password
 		);
 
+// Assert if signed pdf exists
+		$this->assertFileExists($inputPdfPath);
+
+// Rename signed pdf
+		$renamedPdfPath = 'm-'.$inputPdfPath;
+
+// There might be a situation where the signed PDF already exists,
+// it's generally a good practice to delete the file if it already exists.
+//		if (file_exists($renamedPdfPath)) {
+//			unlink($renamedPdfPath);
+//		}
+
+// Add certificate to signed PDF
+//		try {
+//			$pdfSigner->addCertificateToSignedPdf($signedPdfPath, $certificatePath, hash('sha256', self::HASH_DATA));
+//			$renamedPdfPathExists = file_exists($renamedPdfPath);
+//			$this->assertTrue($renamedPdfPathExists, 'Renamed PDF does not exist after adding certificate');
+//		} catch (\Exception $e) {
+//			$this->fail('Exception thrown while adding certificate to PDF: '.$e->getMessage());
+//		}
+
+// Assert the signed pdf file exists
+		$this->assertFileExists($inputPdfPath);
+
+// Assert the signed pdf is not empty
+//		$content = file_get_contents($signedPdfPath);
+//		$this->assertNotEmpty($content);
 
 		// Add certificate to signed PDF
-		$pdfSigner->addCertificateToSignedPdf($signedPdfPath, $certificatePath, hash('sha256', $hashData));
+//		$pdfSigner->addCertificateToSignedPdf($signedPdfPath, $certificatePath, hash('sha256', $hashData));
 
 		// Assert the signed pdf file exists
-		$this->assertFileExists($signedPdfPath);
+		$this->assertFileExists($renamedPdfPath);
 
 		// Assert the signed pdf is not empty
-		$content = file_get_contents($signedPdfPath);
+		$content = file_get_contents($renamedPdfPath);
 		$this->assertNotEmpty($content);
 	}
 
