@@ -11,7 +11,7 @@ namespace Bezpapirove\BezpapirovePhpLib\Pdf;
 
 use setasign\Fpdi\Fpdi;
 
-//class PdfSigner {
+//class PdfSignCertificateAdder {
 //	private $pdf;
 //	private $signatureImage;
 //	private $outputFile;
@@ -55,6 +55,6 @@ use setasign\Fpdi\Fpdi;
 //$signatureImage = 'path/to/your/signature.png';
 //$outputFile = 'path/to/your/signed_output.pdf';
 //
-//$signer = new PdfSigner($pdfFile, $signatureImage, $outputFile);
+//$signer = new PdfSignCertificateAdder($pdfFile, $signatureImage, $outputFile);
 //$signer->sign();
 

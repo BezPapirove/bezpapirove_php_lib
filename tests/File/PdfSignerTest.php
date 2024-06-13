@@ -3,7 +3,7 @@
 namespace Tests\File;
 
 use Bezpapirove\BezpapirovePhpLib\File\Handler;
-use Bezpapirove\BezpapirovePhpLib\Pdf\PdfSigner;
+use Bezpapirove\BezpapirovePhpLib\Pdf\PdfSignCertificateAdder;
 use PHPUnit\Framework\TestCase;
 use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
 use Ramsey\Uuid\Uuid;
@@ -34,16 +34,13 @@ final class HandlerTest extends TestCase
 
 	public function testSignPdf()
 	{
-		$biz_rule = new PdfSigner(
+		$biz_rule = new PdfSignCertificateAdder(
 			$this->pdfFile,
 			$this->signatureImage,
 			$this->outputFile,
-			$this->privateKeyPath,
-			$this->certificate,
-			$this->password
+			$this->privateKeyPath
 		);
 
-		$biz_rule->signPdf();
 
 		$this->assertTrue(true);
 	}
