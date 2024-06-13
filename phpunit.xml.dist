@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
+<phpunit
+         backupGlobals="false"
+         colors="true"
+         bootstrap="tests/bootstrap.php"
+         convertDeprecationsToExceptions="false"
+>
+    <php>
+        <ini name="error_reporting" value="22517" />
+        <server name="KERNEL_DIR" value="app/" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Feo engine Test Suit">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./App</directory>
+        </include>
+    </coverage>
+</phpunit>

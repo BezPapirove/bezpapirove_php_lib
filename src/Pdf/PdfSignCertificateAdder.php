@@ -37,59 +37,67 @@ class PdfSignCertificateAdder
 	}
 
 
-	public function addCertificate($hash): void
-	{
-		$privateKey = $this->getPrivateKey();
-		if($privateKey === false)
-			throw new \Exception("Failed to retrieve Private Key");
-		openssl_sign($hash, $signature, $privateKey, self::SIGN_ALGO);
-		unset($privateKey);
-
-		$this->pdf->setSignature($signature, $this->certificate, $this->password);
-	}
-
-	private function getPrivateKey(): \OpenSSLAsymmetricKey
-	{
-		return openssl_pkey_get_private(file_get_contents($this->privateKeyPath));
-	}
-
 	/**
 	 * @throws PdfParserException
 	 */
-	public function addCertificateToSignedPdf(string $signedPdf, string $certPath): void
+	public function addCertificateToSignedPdf(string $signedPdf, string $certPath, string $hash): void
 	{
+		// Step 1: Get the private key
+		$privateKey = $this->getPrivateKey();
+		if ($privateKey === false) {
+			throw new \Exception("Failed to retrieve Private Key");
+		}
+
+		// Step 2: Sign the hash
+		openssl_sign($hash, $signature, $privateKey, self::SIGN_ALGO);
+		unset($privateKey);
+
+		// Step 3: Load the certificate
 		$certificate = file_get_contents($certPath);
 		if ($certificate === false) {
 			throw new \Exception("Error loading Certificate");
 		}
 
+		// Step 4: Load the signed PDF
 		$oldPdf = $this->pdf;
 		$this->pdf = new Fpdi();
 		$this->pdf->setSourceFile($signedPdf);
 
-		// add the loaded certificate
-		$this->pdf->setSignature(null, $certificate);
+		// Step 5: Add the signature and the certificate
+		$this->pdf->setSignature($signature, $certificate, $this->password);
 
-		// resave the signed PDF with now the added certificate
+		// Step 6: Resave the signed PDF with the added certificate
 		$this->pdf->Output($signedPdf, 'F');
 
+		// Step 7: Restore the old PDF instance
 		$this->pdf = $oldPdf;
 	}
+
+	private function getPrivateKey(): \OpenSSLAsymmetricKey
+	{
+		$privateKey = openssl_pkey_get_private(file_get_contents($this->privateKeyPath));
+		if ($privateKey === false) {
+			throw new \Exception("Failed to retrieve Private Key");
+		}
+		return $privateKey;
+	}
+
 }
 
-// Example usage:
-$pdfFile = 'path/to/your/input.pdf';
-$signatureImage = 'path/to/your/signature.png';
-$outputFile = 'path/to/your/signed_output.pdf';
-$privateKeyPath = 'path/to/your/private-key.pem';
-$certificate = 'path/to/your/certificate.pem';
-$password = 'your_certificate_password';
-
-	$signer = new PdfSignCertificateAdder(
-		$pdfFile,
-		$signatureImage,
-		$outputFile,
-		$privateKeyPath
-	);
-$signer->addCertificateToSignedPdf();
+//// Example usage:
+//$pdfFile = 'path/to/your/input.pdf';
+//$signatureImage = 'path/to/your/signature.png';
+//$outputFile = 'path/to/your/signed_output.pdf';
+//$privateKeyPath = 'path/to/your/private-key.pem';
+//$certificate = 'path/to/your/certificate.pem';
+//$password = 'your_certificate_password';
+//
+//	$signer = new PdfSignCertificateAdder(
+//		$pdfFile,
+//		$signatureImage,
+//		$outputFile,
+//		$privateKeyPath
+//	);
+//$hash = hash_file('sha256', $signedPdf);
+//$signer->addCertificateToSignedPdf($signedPdf, $certPath, $hash);
 
