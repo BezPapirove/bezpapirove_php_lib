@@ -9,66 +9,89 @@ use setasign\Fpdi\Tcpdf\Fpdi;
 class PdfSignCertificateAdder
 {
 	private Fpdi $pdf;
-	private string $privateKeyPath;
-	private string $certPath;
+	private string $certificate;
 	private string $password;
-
-	const HASH_ALGO = 'sha256';
-	const SIGN_FIELD_NAME = 'signature_field_name';
-	const SIGN_ALGO = OPENSSL_ALGO_SHA256;
+	private string $pages;
+	private ?string $error = null;
 
 	/**
 	 * PdfSignCertificateAdder constructor.
 	 *
 	 * @param string $pdfFile
-	 * @param string $privateKeyPath
-	 * @param string $certPath
-	 * @param string $password
 	 *
 	 * @throws PdfParserException
 	 */
-	public function __construct(string $pdfFile, string $privateKeyPath, string $certPath, string $password)
+	public function __construct(string $pdfFile)
 	{
+		if (false === is_file($pdfFile)) {
+			throw new \Exception('Input file doesnt not exist: ' . $pdfFile);
+		}
+		if (false === is_readable($pdfFile)) {
+			throw new \Exception('Input can not be open: ' . $pdfFile);
+		}
 		$this->pdf = new Fpdi();
-		$this->privateKeyPath = $privateKeyPath;
-		$this->certPath = $certPath;
-		$this->password = $password;
-		$this->pdf->setSourceFile($pdfFile);
+		$this->pdf->setPrintHeader(false);
+		$this->pdf->setPrintFooter(false);
+		$this->pages = $this->pdf->setSourceFile($pdfFile);
+		for ($i = 1; $i <= $this->pages; $i++) {
+			$this->pdf->AddPage();
+			$tplId = $this->pdf->importPage($i);
+			$this->pdf->UseTemplate($tplId);
+		}
+		return $this;
 	}
 
 
 	/**
+	 * @param string $outputFile
+	 * @param string $certPath
+	 * @param string $password
+	 * @param array $info
+	 * 
 	 * @throws PdfParserException
 	 */
-	public function addCertificateToSignedPdf(string $signedPdf): void
+	public function addCertificateToSignedPdf(string $outputFile, string $certPath, string $password, array $info) : string
 	{
-		$output = 'm-' . $signedPdf;
-//		var_dump($output);exit;
-		$this->pdf->setSourceFile($signedPdf);
 
-		// Step 5: Add the signature and the certificate
-		$this->pdf->setSignature('file://'. $this->certPath,'file://' . $this->privateKeyPath, $this->password);
+		$this->certificate = $certPath;
+		$this->password = $password;
 
-		// Step 6: Resave the signed PDF with the added certificate
-		$this->pdf->Output($output, 'F');
+		// check signature exists
+		if (!is_file($this->certificate)) {
+			throw new \Exception('File with cert is missing: ' . $this->certificate);
+		}
+		try {
+			// set document signature
+			$this->pdf->setSignature('file://' . $this->certificate, 'file://' . $this->certificate, $this->password, '', 1, $info);
+		} catch (\Exception $e) {
+			$this->error = 'Failed to sign PDF: ' . $e->getMessage();
+			return false;
+		}
+
+		return $this->pdf->Output($outputFile, 'F');
 	}
 
+	/**
+	* isError
+	*
+	* @return string returns string meesage
+	* 
+	* @throws throws description
+	*/
+	public function isError() : bool
+	{
+		return !empty($this->error);
+	}
+	
+	/**
+	* getError
+	*
+	* @return string returns string meesage
+	* 
+	* @throws throws description
+	*/
+	public function getError() : ?string
+	{
+		return $this->error;
+	}
 }
-
-//// Example usage:
-//$pdfFile = 'path/to/your/input.pdf';
-//$signatureImage = 'path/to/your/signature.png';
-//$outputFile = 'path/to/your/signed_output.pdf';
-//$privateKeyPath = 'path/to/your/private-key.pem';
-//$certificate = 'path/to/your/certificate.pem';
-//$password = 'your_certificate_password';
-//
-//	$signer = new PdfSignCertificateAdder(
-//		$pdfFile,
-//		$signatureImage,
-//		$outputFile,
-//		$privateKeyPath
-//	);
-//$hash = hash_file('sha256', $signedPdf);
-//$signer->addCertificateToSignedPdf($signedPdf, $certPath, $hash);
-
