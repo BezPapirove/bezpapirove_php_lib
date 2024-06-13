@@ -90,8 +90,10 @@ class FolderStructure
         foreach ($path_list as $sub) {
             $folder .= '/' . $sub;
         }
-        if (false === mkdir($folder, 0777, true)) {
-            throw new Exception('Can not create directory: ' . $folder);
+        if (false === is_dir($folder)) {
+            if (false === mkdir($folder, 0777, true)) {
+                throw new Exception('Can not create directory: ' . $folder);
+            }
         }
         return true;
     }
