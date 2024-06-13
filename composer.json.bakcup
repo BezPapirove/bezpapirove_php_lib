@@ -2,9 +2,9 @@
     "name": "bezpapirove/bezpapirove_php_lib",
     "type": "library",
     "require": {
-        "ramsey/uuid": ">=4.7",
+        "ramsey/uuid": "5.x-dev",
         "php": ">=8.0",
-        "guzzlehttp/guzzle": ">=7.9.x-dev",
+        "guzzlehttp/guzzle": "8.0.x-dev",
         "guzzlehttp/psr7": "2.6.x-dev",
         "tecnickcom/tcpdf": "dev-main",
         "setasign/fpdi": "dev-master",
