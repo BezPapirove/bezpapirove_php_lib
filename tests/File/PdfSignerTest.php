@@ -18,21 +18,40 @@ final class PdfSignerTest extends TestCase
 	{
 		parent::setUp();
 		$this->pdfSigner = new PdfSignCertificateAdder(
-			'path/to/your/input.pdf',
-			'path/to/your/private-key.pem',
-			'path/to/your/certificate.pem',
+			'../src/Pdf/sample.pdf',
+			'src/Pdf/private-key.pem',
+			'src/Pdf/certificate.pem',
 			'your_certificate_password'
 		);
 	}
 
 	public function testPdfSignCertificateAdder(): void
 	{
-		$inputPdfPath = 'path/to/your/input.pdf';
-		$privateKeyPath = 'path/to/your/private-key.pem';
+		$inputPdfPath ='../src/Pdf/sample.pdf';
+		$privateKeyPath = 'src/Pdf/private-key.pem';
 		$certificatePath = 'path/to/your/certificate.pem';
 		$password = 'your_certificate_password';
 		$signedPdfPath = 'path/to/your/signed_output.pdf';
 		$hashData = 'your data';
+
+//		try {
+//			$pdf->setSourceFile($pdfFilePath);
+//			// Perform actions on the PDF file as needed
+//			// Example: Add a signature or modify the PDF content
+//
+//			// Assertions or other test logic
+//			$this->assertTrue(true); // Example assertion
+//		} catch (\Exception $e) {
+//			$this->fail('Exception thrown: ' . $e->getMessage());
+//		}
+
+		// Assert if files exist and is readable
+		$this->assertFileExists($inputPdfPath);
+//		$this->assertFileIsReadable($inputPdfPath);
+//		$this->assertFileExists($privateKeyPath);
+//		$this->assertFileIsReadable($privateKeyPath);
+//		$this->assertFileExists($certificatePath);
+//		$this->assertFileIsReadable($certificatePath);
 
 		// Instantiate the PdfSignCertificateAdder
 		$pdfSigner = new \Bezpapirove\BezpapirovePhpLib\Pdf\PdfSignCertificateAdder(
@@ -41,6 +60,7 @@ final class PdfSignerTest extends TestCase
 			$certificatePath,
 			$password
 		);
+
 
 		// Add certificate to signed PDF
 		$pdfSigner->addCertificateToSignedPdf($signedPdfPath, $certificatePath, hash('sha256', $hashData));
@@ -52,6 +72,7 @@ final class PdfSignerTest extends TestCase
 		$content = file_get_contents($signedPdfPath);
 		$this->assertNotEmpty($content);
 	}
+
 //	public function testAddCertificateToSignedPdf(): void
 //	{
 //		$hash = hash('sha256', self::HASH_DATA);
