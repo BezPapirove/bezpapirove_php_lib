@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tests\Helpers;
 
@@ -7,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 final class FolderStructureTest extends TestCase
 {
-
     private $path;
 
     protected function setUp(): void

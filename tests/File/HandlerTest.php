@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Tests\File;
 
@@ -9,7 +10,6 @@ use Ramsey\Uuid\Uuid;
 
 final class HandlerTest extends TestCase
 {
-
     private $path;
     private $f = null;
 
@@ -20,7 +20,7 @@ final class HandlerTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (false === empty($this->f) && is_file($this->f)) {
+        if (empty($this->f) === false && is_file($this->f)) {
             unlink($this->f);
         }
     }

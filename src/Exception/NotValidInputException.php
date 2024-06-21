@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
+
 namespace Bezpapirove\BezpapirovePhpLib\Exception;
 
-use \Exception;
+use Exception;
 
-class NotValidInputException extends Exception {
-    
+class NotValidInputException extends Exception
+{
 }

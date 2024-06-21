@@ -1,36 +1,52 @@
 {
-    "name": "bezpapirove/bezpapirove_php_lib",
-    "type": "library",
-    "require": {
-        "ramsey/uuid": ">=4.7",
-        "php": ">=8.0",
-        "guzzlehttp/guzzle": ">=7.9.x-dev",
-        "guzzlehttp/psr7": "2.6.x-dev",
-        "tecnickcom/tcpdf": "dev-main",
-        "setasign/fpdi": "2.1.0",
-        "ext-openssl": "*"
+    "name":"bezpapirove/bezpapirove_php_lib",
+    "type":"library",
+    "require":{
+        "php":">=8.0",
+        "ext-openssl":"*",
+        "ramsey/uuid":"^4.7",
+        "guzzlehttp/guzzle":"^7.8",
+        "guzzlehttp/psr7":"^2.6",
+        "tecnickcom/tcpdf":"^6.7",
+        "setasign/fpdi":"^2.3"
     },
-
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Bezpapirove\\BezpapirovePhpLib\\": "src/"
+    "license":"MIT",
+    "autoload":{
+        "psr-4":{
+            "Bezpapirove\\BezpapirovePhpLib\\":"src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "\\Tests\\": "./tests"
+    "autoload-dev":{
+        "psr-4":{
+            "\\Tests\\":"tests/"
         }
     },
-    "authors": [{
-        "name": "Tomáš Otruba",
-        "email": "tomas@bezpapirove.cz"
-    }],
-    "minimum-stability": "dev",
-    "require-dev": {
-        "ext-fileinfo": "*",
-        "phpstan/phpstan": "^1.10",
-        "phpunit/phpunit": "^9.6",
-        "squizlabs/php_codesniffer": "^3.7"
+    "authors":[
+        {
+            "name":"Tomáš Otruba",
+            "email":"tomas@bezpapirove.cz"
+        },
+        {
+            "name":"Martin Koláček",
+            "email":"martin@bezpapirove.cz"
+        }
+    ],
+    "scripts": {
+        "phpstan": "vendor/bin/phpstan analyse --configuration=phpstan.neon -vv",
+        "phpstan-cc": "vendor/bin/phpstan clear-result-cache",
+        "cs-fix": "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php  -v",
+        "lint": "vendor/bin/parallel-lint src tests",
+        "tests": [
+            "vendor/bin/phpunit --stop-on-error --stop-on-failure --testdox"
+        ]
+    },
+    "minimum-stability":"stable",
+    "require-dev":{
+        "ext-fileinfo":"*",
+        "phpstan/phpstan":"^1.11",
+        "phpunit/phpunit":"^11.2",
+        "php-parallel-lint/php-parallel-lint": "^1.4",
+        "php-parallel-lint/php-console-highlighter": "^1.0",
+        "friendsofphp/php-cs-fixer": "^3.59"
     }
 }

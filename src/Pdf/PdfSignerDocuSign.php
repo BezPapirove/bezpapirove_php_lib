@@ -1,13 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Bezpapirove\BezpapirovePhpLib\Pdf;
 
-
-
-
 //composer require tecnickcom/tcpdf   manipulacia s pdf
 // composer require setasign/fpdi
-
 
 use setasign\Fpdi\Fpdi;
 
@@ -57,4 +54,3 @@ use setasign\Fpdi\Fpdi;
 //
 //$signer = new PdfSignCertificateAdder($pdfFile, $signatureImage, $outputFile);
 //$signer->sign();
-

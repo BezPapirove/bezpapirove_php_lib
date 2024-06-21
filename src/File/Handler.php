@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Bezpapirove\BezpapirovePhpLib\File;
 
 use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
@@ -8,42 +10,41 @@ use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
 use Ramsey\Uuid\Uuid;
 
 /**
-* Handler is simple file handler for working with files on filesystem 
-*
-* @author Tomáš Otruba <tomas@bezpapirove.cz>
-* @copyright 2024 BezPapírově s.r.o.
-* 
-* @version 1.0
-*/
-class Handler {
-
+ * Handler is simple file handler for working with files on filesystem
+ *
+ * @author Tomáš Otruba <tomas@bezpapirove.cz>
+ * @copyright 2024 BezPapírově s.r.o.
+ *
+ * @version 1.0
+ */
+class Handler
+{
     protected $base_path;
 
     public function __construct(string $base_path)
     {
         $this->base_path = $base_path;
-        if (false === is_dir($this->base_path)) {
+        if (is_dir($this->base_path) === false) {
             throw new FileNotFoundException('Base folder does not exists: ' . $this->base_path);
         }
-        if (false === is_writable($this->base_path)) {
+        if (is_writable($this->base_path) === false) {
             throw new NotValidInputException('Base folder is not writeable for application: ' . $this->base_path);
         }
-        return $this;
     }
 
     /**
-    * upload
-    *
-    * @param string $file_path accept existing file on filesystem
-    * 
-    * @return string returns UUID name on filesystem
-    * 
-    * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
-    * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
-    */
-    public function upload(string $file_path) : string
+     * upload
+     *
+     * @param string $file_path accept existing file on filesystem
+     *
+     * @return string returns UUID name on filesystem
+     *
+     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
+     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
+     */
+    public function upload(string $file_path): string
     {
-        if (false === is_file($file_path)) {
+        if (is_file($file_path) === false) {
             throw new NotValidInputException('File does not exist: ' . $file_path);
         }
         try {
@@ -61,45 +62,45 @@ class Handler {
     }
 
     /**
-    * download
-    *
-    * @param string $file_name accept UUID v4 file name
-    * 
-    * @return stream returns stream with file content
-    * 
-    * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
-    */
+     * download
+     *
+     * @param string $file_name accept UUID v4 file name
+     *
+     * @return stream returns stream with file content
+     *
+     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
+     */
     public function download(string $file_name)
     {
         return false;
     }
 
     /**
-    * delete
-    *
-    * @param string $file_name accept UUID v4 file name
-    * 
-    * @return bool returns true on success
-    * 
-    * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
-    */
-    public function delete(string $file_name) : bool
+     * delete
+     *
+     * @param string $file_name accept UUID v4 file name
+     *
+     * @return bool returns true on success
+     *
+     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
+     */
+    public function delete(string $file_name): bool
     {
         return false;
     }
 
     /**
-    * exists
-    *
-    * @param string $file_name accept UUID v4 file name
-    * 
-    * @return bool returns true when file is on filesystem stored
-    * 
-    * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
-    */
-    public function exists(string $file_name) : bool
+     * exists
+     *
+     * @param string $file_name accept UUID v4 file name
+     *
+     * @return bool returns true when file is on filesystem stored
+     *
+     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
+     */
+    public function exists(string $file_name): bool
     {
-        if (false === Uuid::isValid($file_name)) {
+        if (Uuid::isValid($file_name) === false) {
             throw new NotValidInputException('Input is not valid UUID v4: ' . $file_name);
         }
         try {
@@ -109,6 +110,5 @@ class Handler {
             throw new OperationErrorException('Error occures finding file: ' . $e->getMessage());
         }
     }
- 
+
 }
-?>
