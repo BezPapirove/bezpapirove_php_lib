@@ -1,5 +1,7 @@
 # BezPapirove PHP Library
 
+## CI/CD ![build main branch](https://github.com/BezPapirove/bezpapirove_php_lib/actions/workflows/php.yml/badge.svg?branch=main)
+
 Common library for **BezPapirove s.r.o.** which provide classes useable in PHP projects.  
 
 Library is fully covered by unit tests.
