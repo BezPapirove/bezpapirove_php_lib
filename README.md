@@ -27,13 +27,13 @@ FolderStructure::createFolderStructure(string $base_path, array $path_list) : bo
 #### - handling file in data storage
 
 ```php
-use \Bezpapirove\BezpapirovePhpLib\File\Handler;
+use \Bezpapirove\BezpapirovePhpLib\File\FileHandler;
 
-$handler = new Handler(string $base_path);
+$handler = new FileHandler(string $base_path);
 
 $handler->download(string $file_name);
-$handler->upload(string $file_path) : string
-$handler->exists(string $file_name) : bool
+$handler->saveFile(string $file_path) : string
+$handler->fileExists(string $file_name) : bool
 ```
 
 #### - generate file UUID name

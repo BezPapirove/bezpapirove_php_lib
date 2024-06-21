@@ -5,7 +5,11 @@ namespace Tests\Helpers;
 
 use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
 use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\DependsExternal;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
+use Tests\File\FileHandlerTest;
 
 final class FolderStructureTest extends TestCase
 {
@@ -25,47 +29,45 @@ final class FolderStructureTest extends TestCase
         $this->assertTrue($reflection->hasMethod('createFolderStructure'));
     }
 
-    /**
-     * @throws NotValidInputException
-     */
-    public function testGetFolderStructureFromFileNameValid(): void
+    #[DependsExternal(FileHandlerTest::class, 'testFileExists')]
+    public function testGetFolderStructureFromFileNameValid(Uuid $result): void
     {
-        $result = FolderStructure::getFolderStructureFromFileName('c7fd97ae-b67c-4468-a32c-93c613e3a46f');
-        $this->assertTrue(is_array($result), 'Bad result provided');
+        $folderStructure = FolderStructure::getFolderStructureFromFileName($result);
+        $this->assertIsArray($folderStructure, 'Bad result provided');
     }
 
-    public function testException(): void
+    public function testGetFolderStructureFromFileNameResultDefault(): void
     {
-        $this->expectException(NotValidInputException::class);
-        FolderStructure::getFolderStructureFromFileName('bad_Filename');
+        $result = FolderStructure::getFolderStructureFromFileName(Uuid::fromString('c7fd97ae-b67c-4468-a32c-93c613e3a46f'));
+        $this->assertSame($result, ['c7', 'fd', '97']);
+        $this->assertCount(3, $result, 'Bad result provided');
     }
 
-    /**
-     * @throws NotValidInputException
-     */
     public function testGetFolderStructureFromFileNameResult(): void
     {
-        $result = FolderStructure::getFolderStructureFromFileName('c7fd97ae-b67c-4468-a32c-93c613e3a46f');
-        $this->assertSame($result, ['c7', 'fd', '97']);
+        $result = FolderStructure::getFolderStructureFromFileName(Uuid::fromString('c7fd97ae-b67c-4468-a32c-93c613e3a46f'), 4);
+        $this->assertSame($result, ['c7', 'fd', '97', 'ae']);
+        $this->assertCount(4, $result, 'Bad result provided');
+    }
+
+    #[Depends('testCreateFolderStructure')]
+    public function testPathExists(Uuid $result): void
+    {
+        $this->assertIsString($this->path);
+        $path = FolderStructure::getFolderStructureFromFileName($result);
+        $this->assertTrue(FolderStructure::pathExists($this->path, $path));
     }
 
     /**
      * @throws NotValidInputException
      */
-    public function testPathExists(): void
+    public function testCreateFolderStructure(): Uuid
     {
         $this->assertIsString($this->path);
-        $path = FolderStructure::getFolderStructureFromFileName('c7fd97ae-b67c-4468-a32c-93c613e3a46f');
-        $this->assertFalse(FolderStructure::pathExists($this->path, $path));
-    }
-
-    /**
-     * @throws NotValidInputException
-     */
-    public function testCreateFolderStructure(): void
-    {
-        $this->assertIsString($this->path);
-        $path = FolderStructure::getFolderStructureFromFileName('a71d07ae-b67c-4468-a32c-93c613e3a46f');
+        $uuid = Uuid::v4();
+        $path = FolderStructure::getFolderStructureFromFileName($uuid);
         $this->assertTrue(FolderStructure::createFolderStructure($this->path, $path));
+
+        return $uuid;
     }
 }

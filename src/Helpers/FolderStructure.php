@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Bezpapirove\BezpapirovePhpLib\Helpers;
 
 use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * FolderStructure
@@ -16,27 +16,21 @@ use Ramsey\Uuid\Uuid;
  *
  * @version 1.0
  */
-class FolderStructure
+final class FolderStructure
 {
     /**
      * getFolderStructureFromFileName
      *
-     * @param string $file_name accept UUID v4 file name
+     * @param Uuid $fileName accept UUID v4 file name
      *
      * @return array|string[] returns folder list in array
-     *
-     * @throws NotValidInputException when bad file name provided
      */
-    public static function getFolderStructureFromFileName(string $file_name, int $levels = 3): array
+    public static function getFolderStructureFromFileName(Uuid $fileName, int $levels = 3): array
     {
         $folder_structure = [];
 
-        if (Uuid::isValid($file_name) === false) {
-            throw new NotValidInputException('Not valid file name: ' . $file_name);
-        }
-
         for ($i = 0; $i < $levels; $i++) {
-            $folder_structure[] = mb_substr($file_name, ($i * 2), 2);
+            $folder_structure[] = mb_substr($fileName->toRfc4122(), ($i * 2), 2);
         }
 
         return $folder_structure;
@@ -45,18 +39,18 @@ class FolderStructure
     /**
      * pathExists
      *
-     * @param string $base_path
-     * @param array|string[] $path_list
+     * @param string $basePath
+     * @param array|string[] $pathList
      *
      * @return bool returns true when path list exists in folder structure
      */
-    public static function pathExists(string $base_path, array $path_list): bool
+    public static function pathExists(string $basePath, array $pathList): bool
     {
-        $folder = $base_path;
+        $folder = $basePath;
         if (is_dir($folder) === false) {
             return false;
         }
-        foreach ($path_list as $sub) {
+        foreach ($pathList as $sub) {
             $folder .= '/' . $sub;
             if (is_dir($folder) === false) {
                 return false;
@@ -68,24 +62,24 @@ class FolderStructure
     /**
      * createFolderStructure
      *
-     * @param string $base_path
-     * @param array|string[] $path_list
+     * @param string $basePath
+     * @param array|string[] $pathList
      *
      * @return bool returns true when path list exists in folder structure
      *
      * @throws NotValidInputException when bad file name provided
      * @throws \RuntimeException
      */
-    public static function createFolderStructure(string $base_path, array $path_list): bool
+    public static function createFolderStructure(string $basePath, array $pathList): bool
     {
-        $folder = $base_path;
+        $folder = $basePath;
         if (is_dir($folder) === false) {
-            throw new NotValidInputException('Base path not exists: ' . $base_path);
+            throw new NotValidInputException('Base path not exists: ' . $basePath);
         }
         if (is_writable($folder) === false) {
-            throw new NotValidInputException('Base path is not writeable for app: ' . $base_path);
+            throw new NotValidInputException('Base path is not writeable for app: ' . $basePath);
         }
-        foreach ($path_list as $sub) {
+        foreach ($pathList as $sub) {
             $folder .= '/' . $sub;
         }
         if (is_dir($folder) === false) {
