@@ -19,8 +19,12 @@ use Ramsey\Uuid\Uuid;
  */
 class Handler
 {
-    protected $base_path;
+    protected string $base_path;
 
+    /**
+     * @throws FileNotFoundException
+     * @throws NotValidInputException
+     */
     public function __construct(string $base_path)
     {
         $this->base_path = $base_path;
@@ -39,8 +43,8 @@ class Handler
      *
      * @return string returns UUID name on filesystem
      *
-     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
-     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
+     * @throws NotValidInputException when bad file name provided or file does not exists
+     * @throws OperationErrorException
      */
     public function upload(string $file_path): string
     {
@@ -65,12 +69,8 @@ class Handler
      * download
      *
      * @param string $file_name accept UUID v4 file name
-     *
-     * @return stream returns stream with file content
-     *
-     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
      */
-    public function download(string $file_name)
+    public function download(string $file_name): bool
     {
         return false;
     }
@@ -79,10 +79,6 @@ class Handler
      * delete
      *
      * @param string $file_name accept UUID v4 file name
-     *
-     * @return bool returns true on success
-     *
-     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
      */
     public function delete(string $file_name): bool
     {
@@ -96,7 +92,8 @@ class Handler
      *
      * @return bool returns true when file is on filesystem stored
      *
-     * @throws throws \NotValidInputException when bad file name provided or file doesnt exists
+     * @throws NotValidInputException when bad file name provided or file doesnt exists
+     * @throws OperationErrorException
      */
     public function exists(string $file_name): bool
     {

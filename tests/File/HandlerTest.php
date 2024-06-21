@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace Tests\File;
 
+use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
+use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
+use Bezpapirove\BezpapirovePhpLib\Exception\OperationErrorException;
 use Bezpapirove\BezpapirovePhpLib\File\Handler;
 use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
 use PHPUnit\Framework\TestCase;
@@ -10,8 +13,8 @@ use Ramsey\Uuid\Uuid;
 
 final class HandlerTest extends TestCase
 {
-    private $path;
-    private $f = null;
+    private string $path;
+    private string|null $f = null;
 
     protected function setUp(): void
     {
@@ -25,7 +28,7 @@ final class HandlerTest extends TestCase
         }
     }
 
-    public function testMethods()
+    public function testMethods(): void
     {
         $biz_rule = new Handler($this->path);
         $reflection = new \ReflectionClass($biz_rule);
@@ -35,7 +38,12 @@ final class HandlerTest extends TestCase
         $this->assertTrue($reflection->hasMethod('exists'));
     }
 
-    public function testUpload()
+    /**
+     * @throws OperationErrorException
+     * @throws NotValidInputException
+     * @throws FileNotFoundException
+     */
+    public function testUpload(): void
     {
         $h = new Handler($this->path);
         $this->assertTrue($h instanceof Handler);
@@ -47,7 +55,12 @@ final class HandlerTest extends TestCase
         $this->assertTrue(is_file($this->path . '/' . implode('/', $fs) . '/' . $result), 'Created file doesnt exists: ' . $result);
     }
 
-    public function testExists()
+    /**
+     * @throws OperationErrorException
+     * @throws NotValidInputException
+     * @throws FileNotFoundException
+     */
+    public function testExists(): void
     {
         $h = new Handler($this->path);
         $this->assertTrue($h instanceof Handler);

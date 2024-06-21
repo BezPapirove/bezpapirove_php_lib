@@ -4,14 +4,12 @@ declare(strict_types=1);
 namespace Bezpapirove\BezpapirovePhpLib\Pdf;
 
 use setasign\Fpdi\PdfParser\PdfParserException;
+use setasign\Fpdi\PdfReader\PdfReaderException;
 use setasign\Fpdi\Tcpdf\Fpdi;
 
 class PdfSignCertificateAdder
 {
     private Fpdi $pdf;
-    private string $certificate;
-    private string $password;
-    private string $pages;
     private ?string $error = null;
 
     /**
@@ -20,6 +18,8 @@ class PdfSignCertificateAdder
      * @param string $pdfFile
      *
      * @throws PdfParserException
+     * @throws PdfReaderException
+     * @throws \Exception
      */
     public function __construct(string $pdfFile)
     {
@@ -32,36 +32,36 @@ class PdfSignCertificateAdder
         $this->pdf = new Fpdi();
         $this->pdf->setPrintHeader(false);
         $this->pdf->setPrintFooter(false);
-        $this->pages = $this->pdf->setSourceFile($pdfFile);
-        for ($i = 1; $i <= $this->pages; $i++) {
+        $pages = $this->pdf->setSourceFile($pdfFile);
+        for ($i = 1; $i <= $pages; $i++) {
             $this->pdf->AddPage();
             $tplId = $this->pdf->importPage($i);
             $this->pdf->UseTemplate($tplId);
         }
-        return $this;
     }
 
     /**
      * @param string $outputFile
      * @param string $certPath
      * @param string $password
-     * @param array $info
+     * @param array{Name: string, Location: string, Reason: string, ContactInfo: string} $info
      *
-     * @throws PdfParserException
+     * @return string|bool
+     *
+     * @throws \Exception
      */
-    public function addCertificateToSignedPdf(string $outputFile, string $certPath, string $password, array $info): string
+    public function addCertificateToSignedPdf(string $outputFile, string $certPath, string $password, array $info): string|bool
     {
-
-        $this->certificate = $certPath;
-        $this->password = $password;
+        $certificate = $certPath;
+        $password1 = $password;
 
         // check signature exists
-        if ( ! is_file($this->certificate)) {
-            throw new \Exception('File with cert is missing: ' . $this->certificate);
+        if ( ! is_file($certificate)) {
+            throw new \Exception('File with cert is missing: ' . $certificate);
         }
         try {
             // set document signature
-            $this->pdf->setSignature('file://' . $this->certificate, 'file://' . $this->certificate, $this->password, '', 1, $info);
+            $this->pdf->setSignature('file://' . $certificate, 'file://' . $certificate, $password1, '', 1, $info);
         } catch (\Exception $e) {
             $this->error = 'Failed to sign PDF: ' . $e->getMessage();
             return false;
@@ -73,9 +73,7 @@ class PdfSignCertificateAdder
     /**
      * isError
      *
-     * @return string returns string meesage
-     *
-     * @throws throws description
+     * @return bool
      */
     public function isError(): bool
     {
@@ -85,9 +83,7 @@ class PdfSignCertificateAdder
     /**
      * getError
      *
-     * @return string returns string meesage
-     *
-     * @throws throws description
+     * @return string|null
      */
     public function getError(): ?string
     {

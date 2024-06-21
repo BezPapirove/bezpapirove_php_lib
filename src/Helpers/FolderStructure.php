@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Bezpapirove\BezpapirovePhpLib\Helpers;
 
 use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
-use Exception;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -24,9 +23,9 @@ class FolderStructure
      *
      * @param string $file_name accept UUID v4 file name
      *
-     * @return array returns folder list in array
+     * @return array|string[] returns folder list in array
      *
-     * @throws throws \NotValidInputException when bad file name provided
+     * @throws NotValidInputException when bad file name provided
      */
     public static function getFolderStructureFromFileName(string $file_name, int $levels = 3): array
     {
@@ -47,11 +46,9 @@ class FolderStructure
      * pathExists
      *
      * @param string $base_path
-     * @param array $path_list
+     * @param array|string[] $path_list
      *
      * @return bool returns true when path list exists in folder structure
-     *
-     * @throws throws \NotValidInputException when bad file name provided
      */
     public static function pathExists(string $base_path, array $path_list): bool
     {
@@ -72,11 +69,12 @@ class FolderStructure
      * createFolderStructure
      *
      * @param string $base_path
-     * @param array $path_list
+     * @param array|string[] $path_list
      *
      * @return bool returns true when path list exists in folder structure
      *
-     * @throws throws \NotValidInputException when bad file name provided
+     * @throws NotValidInputException when bad file name provided
+     * @throws \RuntimeException
      */
     public static function createFolderStructure(string $base_path, array $path_list): bool
     {
@@ -91,8 +89,8 @@ class FolderStructure
             $folder .= '/' . $sub;
         }
         if (is_dir($folder) === false) {
-            if (mkdir($folder, 0777, true) === false) {
-                throw new Exception('Can not create directory: ' . $folder);
+            if ( ! mkdir($folder, 0777, true) && ! is_dir($folder)) {
+                throw new \RuntimeException('Can not create directory: ' . $folder);
             }
         }
         return true;

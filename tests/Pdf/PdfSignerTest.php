@@ -1,23 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\File;
+namespace Tests\Pdf;
 
 use Bezpapirove\BezpapirovePhpLib\Pdf\PdfSignCertificateAdder;
 use PHPUnit\Framework\TestCase;
+use setasign\Fpdi\PdfParser\PdfParserException;
 
 final class PdfSignerTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
 
     public function tearDown(): void
     {
         parent::tearDown();
     }
 
+    /**
+     * @throws PdfParserException
+     */
     public function testPdfSignCertificateAdder(): void
     {
         $inputPdfPath = __DIR__ . '/sample.pdf';
@@ -38,13 +38,13 @@ final class PdfSignerTest extends TestCase
             'Name' => 'BezPapirove',
             'Location' => 'Brno',
             'Reason' => 'Testing',
-            'ContactInfo' => 'http://www.bezpapirove.cz',
+            'ContactInfo' => 'https://www.bezpapirove.cz',
         ];
 
         $result = $pdfSigner->addCertificateToSignedPdf($outputPdfPath, $certificate, $password, $info);
         if ($result === false) {
             $this->assertTrue($pdfSigner->isError());
-            $this->assertFalse(empty($pdfSigner->getError()));
+            $this->assertNotEmpty($pdfSigner->getError());
         } else {
             $this->assertFileExists($outputPdfPath);
             $this->assertEmpty($pdfSigner->getError());
