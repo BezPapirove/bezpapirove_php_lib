@@ -7,6 +7,11 @@
 > Library is fully covered by unit tests.
 
 
+### Info
+- [PHP 8.0](https://www.php.net/downloads)
+- [Composer](https://getcomposer.org/download)
+- [Packagist](https://packagist.org/packages/bezpapirove/bezpapirove_php_lib)
+
 ### List of some important functions 
 
 #### - file handler
