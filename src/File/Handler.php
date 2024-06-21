@@ -52,7 +52,7 @@ class Handler
             throw new NotValidInputException('File does not exist: ' . $file_path);
         }
         try {
-            $fi = Uuid::uuid4()->toString();
+            $fi = Uuid::uuid5(Uuid::NAMESPACE_URL, $file_path)->toString();
             $fs = FolderStructure::getFolderStructureFromFileName($fi);
             if (FolderStructure::createFolderStructure($this->base_path, $fs)) {
                 rename($file_path, $this->base_path . '/' . implode('/', $fs) . '/' . $fi);
