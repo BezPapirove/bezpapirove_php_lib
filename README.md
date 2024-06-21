@@ -19,9 +19,9 @@
 resolve correct file path in storage
 
 ```php
-FolderStructure::getFolderStructureFromFileName($filename) : array
-FolderStructure::pathExists(string $base_path, array $path_list) : bool
-FolderStructure::createFolderStructure(string $base_path, array $path_list) : bool
+FolderStructure::getFolderStructureFromFileName(Uuid $fileName, int $levels = 3) : array
+FolderStructure::pathExists(string $basePath, array $pathList) : bool
+FolderStructure::createFolderStructure(string $basePath, array $pathList) : bool
 ```
 
 #### - handling file in data storage
@@ -29,11 +29,12 @@ FolderStructure::createFolderStructure(string $base_path, array $path_list) : bo
 ```php
 use \Bezpapirove\BezpapirovePhpLib\File\FileHandler;
 
-$handler = new FileHandler(string $base_path);
+$handler = new FileHandler(string $basePath);
 
-$handler->download(string $file_name);
-$handler->saveFile(string $file_path) : string
-$handler->fileExists(string $file_name) : bool
+$handler->saveFile(string $filePath) : Uuid
+$handler->readFile(Uuid $fileName) : string
+$handler->fileExists(Uuid $fileName) : bool
+$handler->getFilePath(Uuid $fileName) : string
 ```
 
 #### - generate file UUID name
