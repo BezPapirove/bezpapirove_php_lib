@@ -1,0 +1,46 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Build Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  symfony-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+    - uses: actions/checkout@v4
+    - name: Copy .php-cs-fixer.php
+      run: php -r "file_exists('.php-cs-fixer.php') || copy('.php-cs-fixer.dist.php', '.php-cs-fixer.php');"
+    - name: Copy phpstan.neon
+      run: php -r "file_exists('phpstan.neon') || copy('phpstan.dist.neon', 'phpstan.neon');"
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    - name: Install Dependencies
+      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Execute syntax check via PHP Parallel Lint
+      run: composer lint
+    - name: Execute code quality rules via PHP Stan
+      run: composer phpstan
+    - name: Execute code standard via PHP Coding Standards Fixer
+      run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --diff --dry-run --stop-on-violation -v --using-cache=no
+    - name: Execute unit tests via PHP Unit
+      run: composer tests
