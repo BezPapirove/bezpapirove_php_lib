@@ -77,7 +77,7 @@ final class FileHandler
             throw new FileNotFoundException('File does not exist: ' . $fileName);
         }
 
-        return $this->fileSystem->readFile($this->getFilePath($fileName));
+        return file_get_contents($this->getFilePath($fileName));
     }
 
     /**
