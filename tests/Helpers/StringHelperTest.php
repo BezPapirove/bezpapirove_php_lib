@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class StringHelperTest extends TestCase
 {
-   
+
     public function testGetNormalizedFileSize(): void
     {
         $this->assertSame(StringHelper::getNormalizedFileSize(1024, 0), '1 kB');

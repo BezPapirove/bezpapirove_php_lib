@@ -21,8 +21,8 @@ final class StringHelper
 
     /**
      * getNormalizedFileSize
-     * 
-     * returns normalized file size 
+     *
+     * returns normalized file size
      *
      * @param int $bytes original file size in bytes
      *
@@ -30,7 +30,7 @@ final class StringHelper
      */
     public static function getNormalizedFileSize(int $bytes, int $dec = 2): string
     {
-        $factor = floor((strlen(strval($bytes)) - 1) / 3);
+        $factor = floor((mb_strlen((string)$bytes) - 1) / 3);
 
         return sprintf("%.{$dec}f %s", ($bytes / (1024 ** $factor)), self::SIZES_METRICS[$factor]);
     }
