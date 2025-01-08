@@ -24,7 +24,7 @@ use Psr\Http\Message\StreamInterface;
 class Weather extends BaseClient
 {
 
-    private $api_key;
+    private ?string $api_key;
 
     public function __construct(string $base_url, string $api_key)
     {
@@ -34,7 +34,6 @@ class Weather extends BaseClient
         }
         $this->api_key = $api_key;
         $this->client = new Client();
-        return $this;
     }
 
     public function get(float $lat, float  $lon, string $lang = 'cz') : string|StreamInterface
