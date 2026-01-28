@@ -69,6 +69,34 @@ final class FileHandler
     /**
      * @param Uuid $fileName accept UUID v4 file name
      *
+     * @return Uuid returns UUID name on filesystem
+     *
+     * @throws FileNotFoundException
+     * @throws OperationErrorException
+     */
+    public function duplicateFile(Uuid $fileName): Uuid
+    {
+        if ( ! $this->fileExists($fileName)) {
+            throw new FileNotFoundException('File does not exist: ' . $fileName);
+        }
+
+        try {
+            $originalFileContent = file_get_contents($this->getFilePath($fileName));
+            $fileUuid = Uuid::v4();
+            $folderStructure = FolderStructure::getFolderStructureFromFileName($fileUuid);
+            if (FolderStructure::createFolderStructure($this->basePath, $folderStructure)) {
+                $this->fileSystem->dumpFile($this->getFilePath($fileUuid), $originalFileContent);
+            }
+        } catch (\Exception $e) {
+            throw new OperationErrorException('Error occures when duplicating file: ' . $e->getMessage());
+        }
+
+        return $fileUuid;
+    }
+
+    /**
+     * @param Uuid $fileName accept UUID v4 file name
+     *
      * @throws FileNotFoundException
      */
     public function readFile(Uuid $fileName): string

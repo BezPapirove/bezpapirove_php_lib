@@ -37,6 +37,7 @@ final class FileHandlerTest extends TestCase
         $biz_rule = new FileHandler($this->path);
         $reflection = new \ReflectionClass($biz_rule);
         $this->assertTrue($reflection->hasMethod('saveFile'));
+        $this->assertTrue($reflection->hasMethod('duplicateFile'));
         $this->assertTrue($reflection->hasMethod('readFile'));
         $this->assertTrue($reflection->hasMethod('deleteFile'));
         $this->assertTrue($reflection->hasMethod('fileExists'));
@@ -53,6 +54,23 @@ final class FileHandlerTest extends TestCase
         $h = new FileHandler($this->path);
         $this->f = tempnam($this->path, 't_');
         $result = $h->saveFile($this->f);
+        $this->assertNotFalse($result, 'Returned result is FALSE');
+        $this->assertTrue(is_file($h->getFilePath($result)), 'Created file doesnt exists: ' . $result);
+
+        return $result;
+    }
+
+    /**
+     * @throws OperationErrorException
+     * @throws NotValidInputException
+     * @throws FileNotFoundException
+     */
+    public function testDuplicateFile(): Uuid
+    {
+        $h = new FileHandler($this->path);
+        $this->f = tempnam($this->path, 't_');
+        $uuid = $h->saveFile($this->f);
+        $result = $h->duplicateFile($uuid);
         $this->assertNotFalse($result, 'Returned result is FALSE');
         $this->assertTrue(is_file($h->getFilePath($result)), 'Created file doesnt exists: ' . $result);
 
