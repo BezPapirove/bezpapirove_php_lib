@@ -148,4 +148,16 @@ final class FileHandler
         return $this->basePath . '/' . implode('/', $folderStructure) . '/' . $fileName->toRfc4122();
     }
 
+    public function setFileHeaders(Uuid $fileName, string $mimeType, string $downloadName = null): void
+    {
+        $file_path = $this->getFilePath($fileName);
+
+        header("Content-length: " . filesize($file_path) . "");
+        header("Content-type: " . $mimeType);
+
+        if ($downloadName != null) {
+            header("Content-Disposition: attachment; filename=" . $downloadName);
+        }
+    }
+
 }
