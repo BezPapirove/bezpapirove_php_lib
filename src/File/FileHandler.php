@@ -148,16 +148,29 @@ final class FileHandler
         return $this->basePath . '/' . implode('/', $folderStructure) . '/' . $fileName->toRfc4122();
     }
 
-    public function setFileHeaders(Uuid $fileName, string $mimeType, string $downloadName = null): void
-    {
-        $file_path = $this->getFilePath($fileName);
+    public function sendFileHeaders(Uuid $fileUuid, string $mode = 'view', ?string $fileName = null, ?string $mimeType = null): void {
+        $filePath = $this->getFilePath($fileUuid);
 
-        header("Content-length: " . filesize($file_path) . "");
-        header("Content-type: " . $mimeType);
+        $mimeType ??= (new \finfo(FILEINFO_MIME_TYPE))
+            ->file($filePath)
+            ?: 'application/octet-stream';
 
-        if ($downloadName != null) {
-            header("Content-Disposition: attachment; filename=" . $downloadName);
-        }
+        $disposition = match ($mode) {
+            'view' => 'inline',
+            'download' => 'attachment',
+            default => throw new \LogicException('Unknown mode'),
+        };
+
+        $fileName ??= (string) $fileUuid;
+
+        header('Content-Length: ' . filesize($filePath));
+        header('Content-Type: ' . $mimeType);
+        header(
+            'Content-Disposition: ' . $disposition .
+            '; filename="' . basename($fileName) . '"; ' .
+            "filename*=UTF-8''" . rawurlencode($fileName)
+        );
     }
+
 
 }
