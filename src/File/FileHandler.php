@@ -3,15 +3,17 @@ declare(strict_types=1);
 
 namespace Bezpapirove\BezpapirovePhpLib\File;
 
+use Bezpapirove\BezpapirovePhpLib\File\Storage\FileStorageInterface;
+use Bezpapirove\BezpapirovePhpLib\File\Factory\FileStorageFactory;
 use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
 use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
 use Bezpapirove\BezpapirovePhpLib\Exception\OperationErrorException;
-use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
+
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * FileHandler is simple file handler for working with files on filesystem
+ * FileHandler is simple file handler for working with files on different backand (local filesystem, AWS S3, ...)
  *
  * @author Tomáš Otruba <tomas@bezpapirove.cz>
  * @copyright 2024 BezPapírově s.r.o.
@@ -20,23 +22,23 @@ use Symfony\Component\Uid\Uuid;
  */
 final class FileHandler
 {
-    private string $basePath;
+    private static ?FileStorageInterface $sharedStorage = null;
+
+    private FileStorageInterface $storage;
+
     private Filesystem $fileSystem;
 
-    /**
-     * @throws FileNotFoundException
-     * @throws NotValidInputException
-     */
     public function __construct(string $basePath)
     {
-        $this->basePath = $basePath;
+        if (self::$sharedStorage === null) {
+            self::$sharedStorage = FileStorageFactory::createFromConfig(
+                require __DIR__ . '/../../../../config/fileStorage.php',
+                $basePath
+            );
+        }
+
+        $this->storage = self::$sharedStorage;
         $this->fileSystem = new Filesystem();
-        if ( ! is_dir($this->basePath)) {
-            throw new FileNotFoundException('Base folder does not exists: ' . $this->basePath);
-        }
-        if ( ! is_writable($this->basePath)) {
-            throw new NotValidInputException('Base folder is not writeable for application: ' . $this->basePath);
-        }
     }
 
     /**
@@ -52,18 +54,15 @@ final class FileHandler
         if ( ! $this->fileSystem->exists($filePath)) {
             throw new NotValidInputException('File does not exist: ' . $filePath);
         }
-
+        
         try {
-            $fileUuid = Uuid::v4();
-            $folderStructure = FolderStructure::getFolderStructureFromFileName($fileUuid);
-            if (FolderStructure::createFolderStructure($this->basePath, $folderStructure)) {
-                $this->fileSystem->rename($filePath, $this->getFilePath($fileUuid));
-            }
+            $uuid = Uuid::v4();
+            $this->storage->save($filePath, $uuid);
+            return $uuid;
         } catch (\Exception $e) {
             throw new OperationErrorException('Error occures when saving file: ' . $e->getMessage());
         }
-
-        return $fileUuid;
+        
     }
 
     /**
@@ -76,22 +75,17 @@ final class FileHandler
      */
     public function duplicateFile(Uuid $fileName): Uuid
     {
-        if ( ! $this->fileExists($fileName)) {
+        if ( ! $this->storage->exists($fileName)) {
             throw new FileNotFoundException('File does not exist: ' . $fileName);
         }
 
         try {
-            $originalFileContent = file_get_contents($this->getFilePath($fileName));
-            $fileUuid = Uuid::v4();
-            $folderStructure = FolderStructure::getFolderStructureFromFileName($fileUuid);
-            if (FolderStructure::createFolderStructure($this->basePath, $folderStructure)) {
-                $this->fileSystem->dumpFile($this->getFilePath($fileUuid), $originalFileContent);
-            }
+            $new = Uuid::v4();
+            $this->storage->duplicate($fileName, $new);
+            return $new;
         } catch (\Exception $e) {
             throw new OperationErrorException('Error occures when duplicating file: ' . $e->getMessage());
         }
-
-        return $fileUuid;
     }
 
     /**
@@ -101,11 +95,11 @@ final class FileHandler
      */
     public function readFile(Uuid $fileName): string
     {
-        if ( ! $this->fileExists($fileName)) {
+        if ( ! $this->storage->exists($fileName)) {
             throw new FileNotFoundException('File does not exist: ' . $fileName);
         }
-
-        return file_get_contents($this->getFilePath($fileName));
+    
+        return $this->storage->read($fileName);
     }
 
     /**
@@ -116,44 +110,30 @@ final class FileHandler
      */
     public function deleteFile(Uuid $fileName): bool
     {
-        if ( ! $this->fileExists($fileName)) {
+        if ( ! $this->storage->exists($fileName)) {
             throw new FileNotFoundException('File does not exist: ' . $fileName);
         }
-
         try {
-            $this->fileSystem->remove($this->getFilePath($fileName));
+            $this->storage->delete($fileName);
         } catch (\Exception $e) {
             throw new OperationErrorException('Error occures when saving file: ' . $e->getMessage());
         }
-
+        
         return true;
     }
 
     /**
-     * exists
-     *
-     * @param Uuid $fileName accept UUID v4 file name
-     *
-     * @return bool returns true when file is on filesystem stored
+     * Send file HTTP headers to View or Download in browser
+     * 
+     * @param Uuid $fileUuid
+     * @param string $mode
+     * @param mixed $fileName
+     * @param mixed $mimeType
+     * @throws \LogicException
+     * @return void
      */
-    public function fileExists(Uuid $fileName): bool
-    {
-        return $this->fileSystem->exists($this->getFilePath($fileName));
-    }
-
-    public function getFilePath(Uuid $fileName): string
-    {
-        $folderStructure = FolderStructure::getFolderStructureFromFileName($fileName);
-
-        return $this->basePath . '/' . implode('/', $folderStructure) . '/' . $fileName->toRfc4122();
-    }
-
     public function sendFileHeaders(Uuid $fileUuid, string $mode = 'view', ?string $fileName = null, ?string $mimeType = null): void {
-        $filePath = $this->getFilePath($fileUuid);
-
-        $mimeType ??= (new \finfo(FILEINFO_MIME_TYPE))
-            ->file($filePath)
-            ?: 'application/octet-stream';
+        $mimeType ?: 'application/octet-stream';
 
         $disposition = match ($mode) {
             'view' => 'inline',
@@ -163,7 +143,7 @@ final class FileHandler
 
         $fileName ??= (string) $fileUuid;
 
-        header('Content-Length: ' . filesize($filePath));
+        header('Content-Length: ' . $this->storage->getFileSize($fileUuid));
         header('Content-Type: ' . $mimeType);
         header(
             'Content-Disposition: ' . $disposition .
@@ -171,6 +151,4 @@ final class FileHandler
             "filename*=UTF-8''" . rawurlencode($fileName)
         );
     }
-
-
 }

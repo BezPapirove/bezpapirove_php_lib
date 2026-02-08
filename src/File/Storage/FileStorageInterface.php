@@ -16,4 +16,6 @@ interface FileStorageInterface
     public function exists(Uuid $uuid): bool;
 
     public function duplicate(Uuid $source, Uuid $target): void;
+
+    public function getFileSize(Uuid $uuid): int;
 }

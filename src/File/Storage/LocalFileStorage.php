@@ -1,5 +1,14 @@
 <?php
 
+namespace Bezpapirove\BezpapirovePhpLib\File\Storage;
+
+use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
+use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
+use Bezpapirove\BezpapirovePhpLib\Exception\OperationErrorException;
+
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Uid\Uuid;
+
 final class LocalFileStorage implements FileStorageInterface
 {
     public function __construct(
@@ -45,5 +54,22 @@ final class LocalFileStorage implements FileStorageInterface
     {
         $folders = FolderStructure::getFolderStructureFromFileName($uuid);
         return $this->basePath . '/' . implode('/', $folders) . '/' . $uuid->toRfc4122();
+    }
+
+    public function getFileSize(Uuid $uuid): int
+    {
+        $path = $this->getPath($uuid);
+
+        if (!is_file($path)) {
+            throw new FileNotFoundException('File does not exist: ' . $uuid);
+        }
+
+        $size = filesize($path);
+
+        if ($size === false) {
+            throw new OperationErrorException('Unable to get file size: ' . $uuid);
+        }
+
+        return $size;
     }
 }

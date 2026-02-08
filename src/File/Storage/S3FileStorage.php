@@ -1,5 +1,15 @@
 <?php
 
+namespace Bezpapirove\BezpapirovePhpLib\File\Storage;
+
+use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
+use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
+
+use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
+use Symfony\Component\Uid\Uuid;
+
+
 final class S3FileStorage implements FileStorageInterface
 {
     public function __construct(
@@ -56,5 +66,21 @@ final class S3FileStorage implements FileStorageInterface
     {
         $folders = FolderStructure::getFolderStructureFromFileName($uuid);
         return trim($this->basePath . '/' . implode('/', $folders) . '/' . $uuid->toRfc4122(), '/');
+    }
+
+    public function getFileSize(Uuid $uuid): int
+    {
+        try {
+            $result = $this->client->headObject([
+                'Bucket' => $this->bucket,
+                'Key'    => $this->getKey($uuid),
+            ]);
+
+            return (int) $result['ContentLength'];
+        } catch (AwsException $e) {
+            throw new FileNotFoundException(
+                'File does not exist or is not accessible on S3: ' . $uuid
+            );
+        }
     }
 }
