@@ -41,7 +41,7 @@ final class FileHandlerTest extends TestCase
         $this->assertTrue($reflection->hasMethod('readFile'));
         $this->assertTrue($reflection->hasMethod('deleteFile'));
         $this->assertTrue($reflection->hasMethod('fileExists'));
-        $this->assertTrue($reflection->hasMethod('getFilePath'));
+        $this->assertTrue($reflection->hasMethod('sendFileHeaders'));
     }
 
     /**

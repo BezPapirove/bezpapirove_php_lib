@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Bezpapirove\BezpapirovePhpLib\File\Factory;
 
@@ -8,15 +9,15 @@ use Bezpapirove\BezpapirovePhpLib\File\Storage\S3FileStorage;
 
 final class FileStorageFactory
 {
-    public static function createFromConfig(array $config, string $basePath): FileStorageInterface
+    public static function createFromConfig(array $config): FileStorageInterface
     {
         return match ($config['driver']) {
-            'local' => new LocalFileStorage($basePath),
+            'local' => new LocalFileStorage($config['local']['basepath']),
 
             's3' => new S3FileStorage(
                 $config['s3']['client'],
                 $config['s3']['bucket'],
-                $basePath
+                $config['s3']['basepath'],
             ),
 
             default => throw new \LogicException('Unknown storage driver'),

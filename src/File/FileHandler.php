@@ -22,22 +22,14 @@ use Symfony\Component\Uid\Uuid;
  */
 final class FileHandler
 {
-    private static ?FileStorageInterface $sharedStorage = null;
 
     private FileStorageInterface $storage;
 
     private Filesystem $fileSystem;
 
-    public function __construct(string $basePath)
+    public function __construct(array $config)
     {
-        if (self::$sharedStorage === null) {
-            self::$sharedStorage = FileStorageFactory::createFromConfig(
-                require __DIR__ . '/../../../../config/fileStorage.php',
-                $basePath
-            );
-        }
-
-        $this->storage = self::$sharedStorage;
+        $this->storage = FileStorageFactory::createFromConfig($config);
         $this->fileSystem = new Filesystem();
     }
 
@@ -123,6 +115,18 @@ final class FileHandler
     }
 
     /**
+     * Check if file exists
+     *
+     * @param Uuid $fileName accept UUID v4 file name
+     *
+     * @return bool returns true when file exists, false otherwise
+     */
+    public function fileExists(Uuid $fileName): bool
+    {
+        return $this->storage->exists($fileName);
+    }
+
+    /**
      * Send file HTTP headers to View or Download in browser
      * 
      * @param Uuid $fileUuid
@@ -132,16 +136,15 @@ final class FileHandler
      * @throws \LogicException
      * @return void
      */
-    public function sendFileHeaders(Uuid $fileUuid, string $mode = 'view', ?string $fileName = null, ?string $mimeType = null): void {
-        $mimeType ?: 'application/octet-stream';
+    public function sendFileHeaders(Uuid $fileUuid, string $mode = 'view', ?string $fileName = null, string $mimeType = 'application/octet-stream'): void {
+        
+        $fileName ??= (string) $fileUuid;
 
         $disposition = match ($mode) {
             'view' => 'inline',
             'download' => 'attachment',
             default => throw new \LogicException('Unknown mode'),
         };
-
-        $fileName ??= (string) $fileUuid;
 
         header('Content-Length: ' . $this->storage->getFileSize($fileUuid));
         header('Content-Type: ' . $mimeType);

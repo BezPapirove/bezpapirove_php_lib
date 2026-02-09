@@ -34,7 +34,6 @@ $handler = new FileHandler(string $basePath);
 $handler->saveFile(string $filePath) : Uuid
 $handler->readFile(Uuid $fileName) : string
 $handler->fileExists(Uuid $fileName) : bool
-$handler->getFilePath(Uuid $fileName) : string
 ```
 
 #### - generate file UUID name
