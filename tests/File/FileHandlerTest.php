@@ -13,29 +13,40 @@ use Symfony\Component\Uid\Uuid;
 
 final class FileHandlerTest extends TestCase
 {
-    private string $path;
-    private string|null $f = null;
+    private string $basePath;
+    private ?string $tempFile = null;
 
     protected function setUp(): void
     {
-        $this->path = sys_get_temp_dir();
+        $this->basePath = sys_get_temp_dir() . '/filehandler_test';
+
+        if (!is_dir($this->basePath)) {
+            mkdir($this->basePath, recursive: true);
+        }
     }
 
     protected function tearDown(): void
     {
-        if (empty($this->f) === false && is_file($this->f)) {
-            unlink($this->f);
+        if ($this->tempFile && is_file($this->tempFile)) {
+            unlink($this->tempFile);
         }
     }
 
-    /**
-     * @throws FileNotFoundException
-     * @throws NotValidInputException
-     */
+    private function getLocalConfig(): array
+    {
+        return [
+            'driver' => 'local',
+            'local' => [
+                'basepath' => $this->basePath,
+            ],
+        ];
+    }
+
     public function testMethods(): void
     {
-        $biz_rule = new FileHandler($this->path);
-        $reflection = new \ReflectionClass($biz_rule);
+        $handler = new FileHandler($this->getLocalConfig());
+        $reflection = new \ReflectionClass($handler);
+
         $this->assertTrue($reflection->hasMethod('saveFile'));
         $this->assertTrue($reflection->hasMethod('duplicateFile'));
         $this->assertTrue($reflection->hasMethod('readFile'));
@@ -47,61 +58,57 @@ final class FileHandlerTest extends TestCase
     /**
      * @throws OperationErrorException
      * @throws NotValidInputException
-     * @throws FileNotFoundException
      */
     public function testSaveFile(): Uuid
     {
-        $h = new FileHandler($this->path);
-        $this->f = tempnam($this->path, 't_');
-        $result = $h->saveFile($this->f);
-        $this->assertNotFalse($result, 'Returned result is FALSE');
-        $this->assertTrue(is_file($h->getFilePath($result)), 'Created file doesnt exists: ' . $result);
+        $handler = new FileHandler($this->getLocalConfig());
 
-        return $result;
+        $this->tempFile = tempnam(sys_get_temp_dir(), 'fh_');
+        file_put_contents($this->tempFile, 'test content');
+
+        $uuid = $handler->saveFile($this->tempFile);
+
+        $this->assertInstanceOf(Uuid::class, $uuid);
+        $this->assertTrue($handler->fileExists($uuid));
+
+        return $uuid;
     }
 
     /**
      * @throws OperationErrorException
      * @throws NotValidInputException
-     * @throws FileNotFoundException
      */
     public function testDuplicateFile(): Uuid
     {
-        $h = new FileHandler($this->path);
-        $this->f = tempnam($this->path, 't_');
-        $uuid = $h->saveFile($this->f);
-        $result = $h->duplicateFile($uuid);
-        $this->assertNotFalse($result, 'Returned result is FALSE');
-        $this->assertTrue(is_file($h->getFilePath($result)), 'Created file doesnt exists: ' . $result);
+        $handler = new FileHandler($this->getLocalConfig());
 
-        return $result;
+        $this->tempFile = tempnam(sys_get_temp_dir(), 'fh_');
+        file_put_contents($this->tempFile, 'duplicate test');
+
+        $original = $handler->saveFile($this->tempFile);
+        $copy = $handler->duplicateFile($original);
+
+        $this->assertTrue($handler->fileExists($original));
+        $this->assertTrue($handler->fileExists($copy));
+
+        return $copy;
     }
 
-    /**
-     * @throws NotValidInputException
-     * @throws FileNotFoundException
-     */
     #[Depends('testSaveFile')]
-    public function testFileExists(Uuid $result): Uuid
+    public function testFileExists(Uuid $uuid): void
     {
-        $fileHandler = new FileHandler($this->path);
-        $fileExists = $fileHandler->fileExists($result);
-        $this->assertTrue($fileExists, 'Dont find existing file');
+        $handler = new FileHandler($this->getLocalConfig());
 
-        return $result;
+        $this->assertTrue($handler->fileExists($uuid));
     }
 
-    /**
-     * @throws FileNotFoundException
-     * @throws NotValidInputException
-     * @throws OperationErrorException
-     */
-    #[Depends('testFileExists')]
-    public function testDeleteFile(Uuid $result): void
+    #[Depends('testSaveFile')]
+    public function testDeleteFile(Uuid $uuid): void
     {
-        $fileHandler = new FileHandler($this->path);
-        $fileHandler->deleteFile($result);
-        $fileExists = $fileHandler->fileExists($result);
-        $this->assertFalse($fileExists, 'File has not been deleted');
+        $handler = new FileHandler($this->getLocalConfig());
+
+        $handler->deleteFile($uuid);
+
+        $this->assertFalse($handler->fileExists($uuid));
     }
 }
