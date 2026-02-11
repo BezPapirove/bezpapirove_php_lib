@@ -31,7 +31,8 @@ final class FileHandlerTest extends TestCase
             unlink($this->tempFile);
         }
     }
-
+    
+    /** @return array<string, mixed> */
     private function getLocalConfig(): array
     {
         return [
@@ -41,7 +42,6 @@ final class FileHandlerTest extends TestCase
             ],
         ];
     }
-
     public function testMethods(): void
     {
         $handler = new FileHandler($this->getLocalConfig());

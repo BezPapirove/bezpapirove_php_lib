@@ -9,6 +9,7 @@ use Bezpapirove\BezpapirovePhpLib\File\Storage\S3FileStorage;
 
 final class FileStorageFactory
 {
+    /** @param array<string, mixed> $config */
     public static function createFromConfig(array $config): FileStorageInterface
     {
         return match ($config['driver']) {

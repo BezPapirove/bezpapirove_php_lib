@@ -27,6 +27,7 @@ final class FileHandler
 
     private Filesystem $fileSystem;
 
+    /** @param array<string, mixed> $config */
     public function __construct(array $config)
     {
         $this->storage = FileStorageFactory::createFromConfig($config);
@@ -131,8 +132,8 @@ final class FileHandler
      * 
      * @param Uuid $fileUuid
      * @param string $mode
-     * @param mixed $fileName
-     * @param mixed $mimeType
+     * @param string|null $fileName
+     * @param string $mimeType
      * @throws \LogicException
      * @return void
      */
