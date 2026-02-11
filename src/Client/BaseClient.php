@@ -34,7 +34,7 @@ class BaseClient
         $this->client = new Client();
     }
 
-    public function getResponseData(string $key = null, mixed $default = null): mixed
+    public function getResponseData(?string $key = null, mixed $default = null): mixed
     {
         if (empty($key)) {
             return ($this->response_data ?? $default);
@@ -57,7 +57,7 @@ class BaseClient
      * @param null|mixed $data
      * @param null|string $file
      */
-    protected function runRequest(string $endpoint, string $method = self::METHOD_GET, mixed $data = null, string $file = null): ResponseInterface
+    protected function runRequest(string $endpoint, string $method = self::METHOD_GET, mixed $data = null, ?string $file = null): ResponseInterface
     {
 
         $options = [];

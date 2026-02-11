@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.4'
+        php-version: '8.3'
     - uses: actions/checkout@v4
     - name: Copy .php-cs-fixer.php
       run: php -r "file_exists('.php-cs-fixer.php') || copy('.php-cs-fixer.dist.php', '.php-cs-fixer.php');"
@@ -35,7 +35,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
     - name: Install Dependencies
-      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-req
     - name: Execute syntax check via PHP Parallel Lint
       run: composer lint
     - name: Execute code quality rules via PHP Stan
