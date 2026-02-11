@@ -31,6 +31,10 @@
         {
             "name":"Martin Koláček",
             "email":"martin@bezpapirove.cz"
+        },
+        {
+            "name":"Matěj Oppitz",
+            "email":"matej@bezpapirove.cz"
         }
     ],
     "scripts": {

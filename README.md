@@ -21,21 +21,17 @@
 resolve correct file path in storage
 
 ```php
-FolderStructure::getFolderStructureFromFileName(Uuid $fileName, int $levels = 3) : array
-FolderStructure::pathExists(string $basePath, array $pathList) : bool
-FolderStructure::createFolderStructure(string $basePath, array $pathList) : bool
+FileStorageFactory::createFromConfig(array $config)
+
+FileStorageInterface->save(string $sourcePath, Uuid $uuid): void;
+FileStorageInterface->read(Uuid $uuid): string;
+FileStorageInterface->delete(Uuid $uuid): void;
+FileStorageInterface->exists(Uuid $uuid): bool;
+FileStorageInterface->duplicate(Uuid $source, Uuid $target): void;
+FileStorageInterface->getFileSize(Uuid $uuid): int;
+
 ```
 
-#### - handling file in data storage
-
-```php
-use \Bezpapirove\BezpapirovePhpLib\File\FileHandler;
-
-$handler = new FileHandler(string $basePath);
-
-$handler->saveFile(string $filePath) : Uuid
-$handler->readFile(Uuid $fileName) : string
-$handler->fileExists(Uuid $fileName) : bool
 
 # v1.x.x
 ### List of some important functions 
