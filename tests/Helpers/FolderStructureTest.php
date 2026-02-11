@@ -6,10 +6,8 @@ namespace Tests\Helpers;
 use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
 use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\DependsExternal;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
-use Tests\File\FileHandlerTest;
 
 final class FolderStructureTest extends TestCase
 {
