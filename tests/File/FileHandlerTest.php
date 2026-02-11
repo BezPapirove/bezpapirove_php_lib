@@ -44,17 +44,6 @@ final class FileHandlerTest extends TestCase
         $this->assertTrue($reflection->hasMethod('sendFileHeaders'));
     }
 
-    /** @return array<string, mixed> */
-    private function getLocalConfig(): array
-    {
-        return [
-            'driver' => 'local',
-            'local' => [
-                'basepath' => $this->basePath,
-            ],
-        ];
-    }
-
     /**
      * @throws OperationErrorException
      * @throws NotValidInputException
@@ -110,5 +99,16 @@ final class FileHandlerTest extends TestCase
         $handler->deleteFile($uuid);
 
         $this->assertFalse($handler->fileExists($uuid));
+    }
+
+    /** @return array<string, mixed> */
+    private function getLocalConfig(): array
+    {
+        return [
+            'driver' => 'local',
+            'local' => [
+                'basepath' => $this->basePath,
+            ],
+        ];
     }
 }
