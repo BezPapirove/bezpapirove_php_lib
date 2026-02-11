@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace Bezpapirove\BezpapirovePhpLib\File\Storage;
 
-use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
-use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
-
-use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
-use Symfony\Component\Uid\Uuid;
+use Aws\S3\S3Client;
 
+use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
+use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
+
+use Symfony\Component\Uid\Uuid;
 
 final class S3FileStorage implements FileStorageInterface
 {
@@ -16,7 +17,8 @@ final class S3FileStorage implements FileStorageInterface
         private S3Client $client,
         private string $bucket,
         private string $basePath = ''
-    ) {}
+    ) {
+    }
 
     public function save(string $sourcePath, Uuid $uuid): void
     {
@@ -34,7 +36,7 @@ final class S3FileStorage implements FileStorageInterface
             'Key'    => $this->getKey($uuid),
         ]);
 
-        return (string) $result['Body'];
+        return (string)$result['Body'];
     }
 
     public function delete(Uuid $uuid): void
@@ -62,12 +64,6 @@ final class S3FileStorage implements FileStorageInterface
         ]);
     }
 
-    private function getKey(Uuid $uuid): string
-    {
-        $folders = FolderStructure::getFolderStructureFromFileName($uuid);
-        return trim($this->basePath . '/' . implode('/', $folders) . '/' . $uuid->toRfc4122(), '/');
-    }
-
     public function getFileSize(Uuid $uuid): int
     {
         try {
@@ -76,11 +72,17 @@ final class S3FileStorage implements FileStorageInterface
                 'Key'    => $this->getKey($uuid),
             ]);
 
-            return (int) $result['ContentLength'];
+            return (int)$result['ContentLength'];
         } catch (AwsException $e) {
             throw new FileNotFoundException(
                 'File does not exist or is not accessible on S3: ' . $uuid
             );
         }
+    }
+
+    private function getKey(Uuid $uuid): string
+    {
+        $folders = FolderStructure::getFolderStructureFromFileName($uuid);
+        return trim($this->basePath . '/' . implode('/', $folders) . '/' . $uuid->toRfc4122(), '/');
     }
 }

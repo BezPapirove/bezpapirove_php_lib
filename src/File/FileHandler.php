@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace Bezpapirove\BezpapirovePhpLib\File;
 
-use Bezpapirove\BezpapirovePhpLib\File\Storage\FileStorageInterface;
-use Bezpapirove\BezpapirovePhpLib\File\Factory\FileStorageFactory;
 use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
 use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
 use Bezpapirove\BezpapirovePhpLib\Exception\OperationErrorException;
+use Bezpapirove\BezpapirovePhpLib\File\Factory\FileStorageFactory;
+use Bezpapirove\BezpapirovePhpLib\File\Storage\FileStorageInterface;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Uid\Uuid;
@@ -47,7 +47,7 @@ final class FileHandler
         if ( ! $this->fileSystem->exists($filePath)) {
             throw new NotValidInputException('File does not exist: ' . $filePath);
         }
-        
+
         try {
             $uuid = Uuid::v4();
             $this->storage->save($filePath, $uuid);
@@ -55,7 +55,6 @@ final class FileHandler
         } catch (\Exception $e) {
             throw new OperationErrorException('Error occures when saving file: ' . $e->getMessage());
         }
-        
     }
 
     /**
@@ -91,7 +90,7 @@ final class FileHandler
         if ( ! $this->storage->exists($fileName)) {
             throw new FileNotFoundException('File does not exist: ' . $fileName);
         }
-    
+
         return $this->storage->read($fileName);
     }
 
@@ -111,7 +110,7 @@ final class FileHandler
         } catch (\Exception $e) {
             throw new OperationErrorException('Error occures when saving file: ' . $e->getMessage());
         }
-        
+
         return true;
     }
 
@@ -129,17 +128,19 @@ final class FileHandler
 
     /**
      * Send file HTTP headers to View or Download in browser
-     * 
+     *
      * @param Uuid $fileUuid
      * @param string $mode
      * @param string|null $fileName
      * @param string $mimeType
+     *
      * @throws \LogicException
+     *
      * @return void
      */
-    public function sendFileHeaders(Uuid $fileUuid, string $mode = 'view', ?string $fileName = null, string $mimeType = 'application/octet-stream'): void {
-        
-        $fileName ??= (string) $fileUuid;
+    public function sendFileHeaders(Uuid $fileUuid, string $mode = 'view', ?string $fileName = null, string $mimeType = 'application/octet-stream'): void
+    {
+        $fileName ??= (string)$fileUuid;
 
         $disposition = match ($mode) {
             'view' => 'inline',

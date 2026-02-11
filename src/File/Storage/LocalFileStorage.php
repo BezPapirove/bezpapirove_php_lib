@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Bezpapirove\BezpapirovePhpLib\File\Storage;
 
-use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
 use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
 use Bezpapirove\BezpapirovePhpLib\Exception\OperationErrorException;
+use Bezpapirove\BezpapirovePhpLib\Helpers\FolderStructure;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Uid\Uuid;
@@ -14,7 +15,8 @@ final class LocalFileStorage implements FileStorageInterface
     public function __construct(
         private string $basePath,
         private Filesystem $filesystem = new Filesystem()
-    ) {}
+    ) {
+    }
 
     public function save(string $sourcePath, Uuid $uuid): void
     {
@@ -50,17 +52,11 @@ final class LocalFileStorage implements FileStorageInterface
         );
     }
 
-    private function getPath(Uuid $uuid): string
-    {
-        $folders = FolderStructure::getFolderStructureFromFileName($uuid);
-        return $this->basePath . '/' . implode('/', $folders) . '/' . $uuid->toRfc4122();
-    }
-
     public function getFileSize(Uuid $uuid): int
     {
         $path = $this->getPath($uuid);
 
-        if (!is_file($path)) {
+        if ( ! is_file($path)) {
             throw new FileNotFoundException('File does not exist: ' . $uuid);
         }
 
@@ -71,5 +67,11 @@ final class LocalFileStorage implements FileStorageInterface
         }
 
         return $size;
+    }
+
+    private function getPath(Uuid $uuid): string
+    {
+        $folders = FolderStructure::getFolderStructureFromFileName($uuid);
+        return $this->basePath . '/' . implode('/', $folders) . '/' . $uuid->toRfc4122();
     }
 }

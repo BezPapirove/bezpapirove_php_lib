@@ -30,7 +30,7 @@ final class FileHandlerTest extends TestCase
             unlink($this->tempFile);
         }
     }
-        
+
     public function testMethods(): void
     {
         $handler = new FileHandler($this->getLocalConfig());
