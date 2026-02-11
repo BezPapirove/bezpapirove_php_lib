@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Tests\File;
 
-use Bezpapirove\BezpapirovePhpLib\Exception\FileNotFoundException;
 use Bezpapirove\BezpapirovePhpLib\Exception\NotValidInputException;
 use Bezpapirove\BezpapirovePhpLib\Exception\OperationErrorException;
 use Bezpapirove\BezpapirovePhpLib\File\FileHandler;
@@ -20,7 +19,7 @@ final class FileHandlerTest extends TestCase
     {
         $this->basePath = sys_get_temp_dir() . '/filehandler_test';
 
-        if (!is_dir($this->basePath)) {
+        if ( ! is_dir($this->basePath)) {
             mkdir($this->basePath, recursive: true);
         }
     }
@@ -31,17 +30,7 @@ final class FileHandlerTest extends TestCase
             unlink($this->tempFile);
         }
     }
-    
-    /** @return array<string, mixed> */
-    private function getLocalConfig(): array
-    {
-        return [
-            'driver' => 'local',
-            'local' => [
-                'basepath' => $this->basePath,
-            ],
-        ];
-    }
+        
     public function testMethods(): void
     {
         $handler = new FileHandler($this->getLocalConfig());
@@ -53,6 +42,17 @@ final class FileHandlerTest extends TestCase
         $this->assertTrue($reflection->hasMethod('deleteFile'));
         $this->assertTrue($reflection->hasMethod('fileExists'));
         $this->assertTrue($reflection->hasMethod('sendFileHeaders'));
+    }
+
+    /** @return array<string, mixed> */
+    private function getLocalConfig(): array
+    {
+        return [
+            'driver' => 'local',
+            'local' => [
+                'basepath' => $this->basePath,
+            ],
+        ];
     }
 
     /**
