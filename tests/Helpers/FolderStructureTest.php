@@ -29,10 +29,11 @@ final class FolderStructureTest extends TestCase
         $this->assertTrue($reflection->hasMethod('createFolderStructure'));
     }
 
-    #[DependsExternal(FileHandlerTest::class, 'testFileExists')]
-    public function testGetFolderStructureFromFileNameValid(Uuid $result): void
+    public function testGetFolderStructureFromFileNameValid(): void
     {
-        $folderStructure = FolderStructure::getFolderStructureFromFileName($result);
+        $uuid = Uuid::v4();
+        $folderStructure = FolderStructure::getFolderStructureFromFileName($uuid);
+
         $this->assertIsArray($folderStructure, 'Bad result provided');
     }
 
